@@ -25,32 +25,6 @@ function animate(node,t)
  end
 end
 
-function animate_keys(node,target,keys,duration,easing,custom_time)
- local n=node
- n._t=target
- local e=easing or ease_linear
- local d=duration or 1
- local iv={}
- for key in all(keys) do
-  iv[key..1]=n[key]
-  iv[key..2]=n._t[key]
- end
- local st=custom_time or time()
- n._a=function(t)
-  local tm=e((t-st)/d)
-  if tm>=1 then
-   for key in all(keys) do
-    n[key]=iv[key..2]
-   end
-   n._a=nil
-   return
-  end
-  for key in all(keys) do
-   n[key]=lerp(iv[key..1],iv[key..2],tm)
-  end
- end
-end
-
 function has_animations(node)
  local a=node._animations
  if a then
