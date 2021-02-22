@@ -7,11 +7,14 @@ __lua__
 function _init()
 	cls()
 	actors={
-		{x=32,y=32,r=6,c=1},
-		{x=32,y=32,s=1},
-		{x=96,y=32,s=2},
-		{x=32,y=96,s=3},
-		{x=96,y=96,s=4}
+		{x=32,y=32,r=16,c=1},
+		{x=32,y=32,s=1,z=1},
+		{x=96,y=32,s=2,z=1},
+		{x=32,y=96,s=3,z=1},
+		{x=96,y=96,s=4,z=1}
+	}
+	anim_fast={
+		duration=0.1
 	}
 end
 
@@ -21,29 +24,19 @@ function _update60()
 			animate(actor)
 		end
 	end
+	local crs=actors[1]
 	if btnp(0) or btnp(1) then
-		animate_key(
-			actors[1],"x",
-			btnp(0) and 32 or 96,
-			0.5,ease_quad_out
-		)
+		tween(crs,{x=btnp(0) and 32 or 96})
 	end
-	
 	if btnp(2) or btnp(3) then
-		animate_key(
-			actors[1],"y",
-			btnp(2) and 32 or 96,
-			0.5,ease_quad_out
-		)
+		tween(crs,{y=btnp(2) and 32 or 96})
 	end
-	if btn(5) then
-		animate_key(
-			actors[1],"r",6,0.75
-		)
-	else
-		animate_key(
-			actors[1],"r",16,0.25
-		)
+	if btn(5) and not pressed_❎ then
+		tween(crs,{r=6,c=7},anim_fast)
+		pressed_❎=true
+	elseif not btn(5) and pressed_❎ then
+		pressed_❎=false
+		tween(crs,{r=16,c=1})
 	end
 end
 
@@ -52,40 +45,52 @@ function _draw()
 	for actor in all(actors) do
 		draw_actor(actor)
 	end
-	local k=""
-	if(btn(0))k..="⬅️"
-	if(btn(1))k..="➡️"
-	if(btn(2))k..="⬆️"
-	if(btn(3))k..="⬇️"
-	if(btn(4))k..="🅾️"
-	if(btn(5))k..="❎"
-	print(k,64-#k*4,62,6)
+	draw_buttons()
 end
 
 function draw_actor(actor)
 	if actor.s then
-		spr(actor.s,actor.x-3,actor.y-3)
+		sspr(
+			actor.s*8,0,
+			8,8,
+			actor.x-4,actor.y-4,
+			8*(actor.z or 1),
+			8*(actor.z or 1)
+		)
 	elseif actor.r then
 		draw_ball(actor)
 	end
 end
 
 function draw_ball(b)
-	--current target
---	circfill(b._t.x,b._t.y,2,5)
-	--ball
-	circ(b.x,b.y,b.r,b.c)
-	if(btn(5))then
-		fillp(▒)
+	circ(b.x-1,b.y,b.r,b.c)
+	if(not btn(5))then
+		fillp(░)
 		circfill(b.x,b.y,b.r,b.c)
 		fillp()
+	end
+end
+
+buttons=split("⬅️➡️⬆️⬇️🅾️❎","")
+function draw_buttons()
+	local k=""
+	for i,v in ipairs(buttons) do
+		if(btn(i-1))k..=v
+	end
+	print(k,64-#k*4,62,6)
+	print("",0,0)
+	local crs=actors[1]
+	local twns=crs[animate_key]
+	local twnc=0
+	for k,v in pairs(twns) do
+		twnc+=1
 	end
 end
 __gfx__
 000000000088800000bbb00000ccc000009990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000088888000bbbbb000ccccc00099999000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0070070087787780b77b77b0c70c70c0907907900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0007700087087080b07b07b0c77c77c0977977900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0070070087787780b77b77b0c71c71c0987987900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0007700087187180b17b17b0c77c77c0977977900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0007700088888880bbbbbbb0ccccccc0999999900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0070070088888880bbbbbbb0ccccccc0999999900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000088888880bbbbbbb0ccccccc0999999900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
